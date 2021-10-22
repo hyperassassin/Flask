@@ -1,50 +1,47 @@
-from flask import Flask , render_template , send_from_directory
+from flask import Flask , render_template , send_from_directory,request
 import os
 
 from werkzeug.exceptions import HTTPException
 
 app = Flask(__name__)
 
-@app.route('/')
+@app.route('/',defaults={'name':'file1.txt'})
+@app.route("/<name>")
 
-def file_default():
-    try:
-        with open('file1.txt','r',encoding="utf-8",errors="ignore") as f:
-            return render_template('content.html',text = f.read())
-    except FileNotFoundError:
-        return render_template("Error.html")
-
-@app.route('/<name>')
-
-def content(name):
+def main(name):
+    start = request.args.get('start',default=0,type=int)
+    end = request.args.get('end',default=":",type=int)
     try:
         if name == "file4.txt":
-            with open("file4.txt",'r',encoding="utf-16le",errors="ignore") as f:
-                return render_template('content.html',text = f.read())
+            if end != ":":
+                with open("file4.txt",encoding="utf-16le",errors="ignore") as f:
+                    file = f.readlines()
+                    con = file[start:end+1]
+                    str1 = " "
+                    ltext = str1.join(con)
+                    return render_template('content.html',text = ltext)
+            else:
+                with open("file4.txt",encoding="utf-16le",errors="ignore") as f:
+                    file = f.readlines()
+                    con = file[start:]
+                    str1 = " "
+                    ltext = str1.join(con)
+                    return render_template('content.html',text = ltext)
         else:
-            with open(name,'r',encoding="utf-8",errors="ignore") as f:
-                return render_template('content.html',text = f.read())
-    except FileNotFoundError:
-        return render_template("Error.html")
-
-@app.route('/<name>/start=<int:a>&end=<int:b>')
-
-def filter(a,b,name):
-    try:
-        if name == "file4.txt":
-            with open("file4.txt",encoding="utf-16le",errors="ignore") as f:
-                file = f.readlines()
-                con = file[a:b+1]
-                str1 = " "
-                ltext = str1.join(con)
-                return render_template('content.html',text = ltext)
-        else:
-            with open(name,encoding="utf-8",errors="ignore") as f:
-                file = f.readlines()
-                con = file[a:b+1]
-                str1 = " "
-                ltext = str1.join(con)
-                return render_template('content.html',text = ltext)
+            if end != ":":
+                with open(name,encoding="utf-8",errors="ignore") as f:
+                    file = f.readlines()
+                    con = file[start:end+1]
+                    str1 = " "
+                    ltext = str1.join(con)
+                    return render_template('content.html',text = ltext)
+            else:
+                with open(name,encoding="utf-8",errors="ignore") as f:
+                    file = f.readlines()
+                    con = file[start:]
+                    str1 = " "
+                    ltext = str1.join(con)
+                    return render_template('content.html',text = ltext)
     except FileNotFoundError:
         return render_template("Error.html")
 
